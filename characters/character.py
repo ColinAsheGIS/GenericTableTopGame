@@ -115,55 +115,42 @@ class CharacterBuilder(ABC):
     def character(self) -> ICharacter:
         pass
 
-    @abstractmethod
     def build_meta(self) -> CharacterBuilder:
-        self._character.meta_name = self.__class__.__name__
+        self.character.meta_name = self.__class__.__name__
         return self
 
     @abstractmethod
     def build_physical_stats(self) -> CharacterBuilder:
         pass
 
-    @abstractmethod
     def build_behaviours(self, alignment: Alignment) -> CharacterBuilder:
         self._character.alignment = alignment
         return self
 
-    @abstractmethod
     def build_base_stats(self, base_stats: BaseStats) -> CharacterBuilder:
         self._character.base_stats = base_stats
         return self
 
-    @abstractmethod
     def build_ability_scores(self, ability_scores: AbilityScores) -> CharacterBuilder:
         self._character.ability_scores = ability_scores
         return self
 
-    @abstractmethod
     def build_saving_throws(self, saving_throws: SavingThrows) -> CharacterBuilder:
         self._character.saving_throws = saving_throws
         return self
 
-    @abstractmethod
     def build_skills(self, skills: Skills) -> CharacterBuilder:
         self._character.skills = skills
         return self
 
-    @abstractmethod
     def build_immunities(self, damage_modifiers: DamageModifiers) -> CharacterBuilder:
         self._character.damage_modifiers = damage_modifiers
         return self
 
-    @abstractmethod
     def build_senses(self, senses: Senses) -> CharacterBuilder:
         self._character.senses = senses
         return self
 
-    @abstractmethod
-    def build_challenge(self) -> CharacterBuilder:
-        pass
-
-    @abstractmethod
     def build_language(self, languages: Languages) -> CharacterBuilder:
         self._character.languages = languages
         return self
@@ -275,6 +262,31 @@ class Traits:
     traits: Set[Trait]
 
 
+class PlayableCharacterBuilder(CharacterBuilder):
+
+    def __init__(self) -> None:
+        self.reset()
+
+    def reset(self) -> None:
+        self._character = PlayableCharacter()
+
+    @property
+    def character(self) -> PlayableCharacter:
+        character = self._character
+        self.reset()
+        return character
+
+    def build_physical_stats(self, stats: PhysicalStats) -> PlayableCharacterBuilder:
+        self._character.physical_stats = stats
+
+    def build_traits(self, traits: Traits) -> PlayableCharacterBuilder:
+        self._character.traits = traits
+        return self
+
+    def build_combat(self) -> PlayableCharacterBuilder:
+        self._character.combat = "too hard sorry"
+        return self
+
 class NPCharacterBuilder(CharacterBuilder):
 
     def __init__(self):
@@ -293,33 +305,9 @@ class NPCharacterBuilder(CharacterBuilder):
         self._character.physical_stats = stats
         return self
 
-    def build_behaviours(self, alignment: Alignment) -> NPCharacterBuilder:
-        return super().build_behaviours(alignment)
-
-    def build_base_stats(self, base_stats: BaseStats) -> NPCharacterBuilder:
-        return super().build_base_stats(base_stats)
-
-    def build_ability_scores(self, ability_scores: AbilityScores) -> NPCharacterBuilder:
-        return super().build_ability_scores(ability_scores)
-
-    def build_saving_throws(self, saving_throws: SavingThrows) -> NPCharacterBuilder:
-        return super().build_saving_throws(saving_throws)
-
-    def build_skills(self, skills: Skills) -> NPCharacterBuilder:
-        return super().build_skills(skills)
-
-    def build_immunities(self, damage_modifiers: DamageModifiers) -> NPCharacterBuilder:
-        return super().build_immunities(damage_modifiers)
-
-    def build_senses(self, senses: Senses) -> NPCharacterBuilder:
-        return super().build_senses(senses)
-
     def build_challenge(self, challenge_rating: Challenge) -> NPCharacterBuilder:
         self._character.challenge = challenge_rating
         return self
-
-    def build_language(self, languages: Languages) -> NPCharacterBuilder:
-        return super().build_language(languages)
 
     def build_traits(self, traits: Traits) -> NPCharacterBuilder:
         self._character.traits = traits
@@ -328,9 +316,6 @@ class NPCharacterBuilder(CharacterBuilder):
     def build_combat(self) -> NPCharacterBuilder:
         self._character.combat = "Oh god"
         return self
-
-    def build_meta(self) -> NPCharacterBuilder:
-        return super().build_meta()
 
 
 @dataclass
@@ -358,7 +343,7 @@ class NPCharacter(ICharacter):
     """
     Non-playable character behaviours go in this interface
     """
-    challenge: Challenge = None
+    challenge: Challenge | None = None
 
 
 class PlayableCharacter(ICharacter):
